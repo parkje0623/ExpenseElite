@@ -1,0 +1,470 @@
+/* Asset Modal */
+
+/*.modal-header h5 {*/
+/*    margin-bottom: 0;*/
+/*    border-bottom: 2px solid #000;*/
+/*}*/
+
+/* Asset List */
+/*.asset-list {*/
+/*    margin-top: 20px;*/
+/*}*/
+
+/*.asset-group {*/
+/*    margin-bottom: 20px;*/
+/*    width: 100%;*/
+/*}*/
+
+/*.asset-group h6 {*/
+/*    font-weight: bold;*/
+/*    margin-bottom: 10px;*/
+/*}*/
+
+/*.asset-item {*/
+/*    padding-left: 20px;*/
+/*    margin-bottom: 5px;*/
+/*}*/
+
+/*.modal-content {*/
+/*    padding: 20px;*/
+/*}*/
+
+/* Delete Asset Modal */
+/*.list-group-item {*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*    align-items: center;*/
+/*}*/
+
+/*.list-group-item button {*/
+/*    margin-left: 10px;*/
+/*}*/
+
+
+/*************************************/
+/* Base Style */
+body {
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Sidebar Style */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    background-color: #f8f9fa;
+    border-right: 2px solid #008080;
+    color: #f8f9fa;
+    padding-top: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: width 0.3s ease;
+}
+
+.sidebar:hover {
+    width: 300px;
+}
+
+.sidebar-heading {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 50px;
+    margin-top: 100px;
+    color: #008080;
+}
+
+.nav-link {
+    color: #333;
+    padding: 10px 20px;
+    display: block;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-link:hover {
+    background-color: #495057;
+    color: #008080;
+}
+
+.nav-link.active {
+    background-color: #008080;
+    color: #333;
+}
+
+.nav-link i {
+    margin-right: 10px;
+}
+
+/* Main Content Style */
+main {
+    margin-left: 250px;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar:hover ~ main {
+    margin-left: 300px;
+}
+
+.container-fluid {
+    padding: 0 15px;
+}
+
+/* Button Style */
+.btn-primary {
+    background-color: #008080;
+    border-color: #014242;
+}
+
+.btn-primary:hover {
+    background-color: #005c5c;
+    border-color: #004085;
+}
+
+/*.btn-secondary {*/
+/*    background-color: #6c757d;*/
+/*    border-color: #6c757d;*/
+/*}*/
+
+/*.btn-secondary:hover {*/
+/*    background-color: #5a6268;*/
+/*    border-color: #542b62;*/
+/*}*/
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.expense-transaction-btn, .add-delete-btn {
+    text-align: center;
+}
+
+.add-delete-btn button {
+    width: 100px;
+}
+
+/* Modal Style */
+.modal-content {
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+}
+
+.add-header {
+    background-color: #008080;
+    color: #fff;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+}
+
+.delete-header {
+    background-color: #DB1F48;
+    color: #fff;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+}
+
+.modal-title {
+    margin: 0;
+}
+
+.modal-header .close {
+    color: #fff;
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+#editCategoriesModal, #addTransactionModal {
+    /* Used to fix add modal scroll issue after closing edit modal */
+    overflow: auto;
+}
+
+/* Asset Add Modal */
+.asset-option {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+    cursor: pointer;
+}
+
+/* Form Style */
+.form-group label {
+    font-weight: bold;
+}
+
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 10px;
+    box-shadow: none;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+}
+
+/* Tab Style */
+.nav-tabs .nav-link {
+    border: none;
+    border-radius: 5px 5px 0 0;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.tab-content {
+    border: 1px solid #ced4da;
+    border-radius: 0 0 5px 5px;
+    padding: 15px;
+}
+
+/* Number (+/-) Style */
+.income-expense-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+}
+
+.income-expense-total div {
+    flex: 1;
+    text-align: center;
+}
+
+.budget-income, .positive {
+    color: #0077ff;
+}
+
+.debt-expense, .negative {
+    color: #DB1F48;
+}
+
+.total-total, .neutral {
+    color: #333;
+}
+
+.budget-total {
+    width: 100%;
+}
+
+/* Date Navigation Style */
+#income-navigation, #expense-navigation, #comparison-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+#income-navigation button, #expense-navigation button, #comparison-navigation button {
+    background-color: #008080;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    margin: 0 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#income-navigation button:hover, #expense-navigation button:hover, #comparison-navigation button:hover {
+    background-color: #005c5c;
+}
+
+#income-navigation button i, #expense-navigation button i, #comparison-navigation button i {
+    font-size: 1rem;
+}
+
+#current-income-date, #current-expense-date, #current-comparison-date {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.date-navigation li a, .date-navigation li a:hover {
+    border: none;
+    background-color: white;
+}
+
+.date-navigation li a i {
+    background-color: #008080;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.index-date {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Asset Page Style */
+.budget-container, .transaction-container {
+    width: 80%;
+}
+
+.asset-list {
+    margin-top: 20px;
+}
+
+.asset-group {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.asset-group h6 {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #00221C;
+}
+
+.asset-items {
+    margin-bottom: 30px;
+}
+
+.asset-item {
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.asset-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.asset-item h5 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.asset-item p {
+    margin: 5px 0 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Value Styles */
+.asset-item .value {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+}
+
+/* Expense Page Style */
+.date-title {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+}
+
+.date-info {
+    margin-bottom: 30px;
+}
+
+.date-info-item-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.date-info-item p {
+    margin-top: 10px;
+}
+
+/* Stats Page Style */
+.stats-container {
+    margin-top: 5px;
+}
+
+#statsTabContent {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stats-container .row {
+    justify-content: center;
+}
+
+/* Chart Style */
+canvas {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#incomeChart, #expenseChart {
+    width: 400px !important;
+}
+
+.chart-info {
+    display: flex;
+    justify-content: center;
+}
+
+.chart-info-chart {
+    margin: 5px; /* Add some margin around the chart */
+}
+
+.chart-info-details ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.chart-info-details li {
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    font-size: 1em;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Responsive Design Style */
+@media (max-width: 767px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .sidebar:hover {
+        width: 100%;
+    }
+
+    main {
+        margin-left: 0;
+    }
+}
