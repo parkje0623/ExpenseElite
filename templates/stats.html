@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>Expense Tracker - Stats</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <nav class="col-md-2 bg-light sidebar">
+                    <div class="sidebar-sticky">
+                        <h5 class="sidebar-heading">Expense Tracker</h5>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="index">
+                                    <i class="fas fa-dollar-sign"></i> Expense
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="budget">
+                                    <i class="fas fa-chart-bar"></i> Budget
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#">
+                                    <i class="fas fa-chart-line"></i> Stats
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="setting">
+                                    <i class="fas fa-cog"></i> Settings
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt"></i> Log out
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+
+                <!-- Main Content -->
+                <main role="main" class="col-md-10 ml-md-auto">
+                    <div class="container stats-container">
+                        <div class="row">
+                            <ul class="nav nav-tabs" id="statsTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="income-tab" data-toggle="tab" href="#income" role="tab" aria-controls="income" aria-selected="true">Income</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="expense-tab" data-toggle="tab" onclick="updateChart('expense')" href="#expense" role="tab" aria-controls="expense" aria-selected="false">Expense</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="comparison-tab" data-toggle="tab" href="#comparison" role="tab" aria-controls="comparison" aria-selected="false">Comparison</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="row">
+                            <div class="tab-content" id="statsTabContent">
+                                <!-- Income Stats -->
+                                <div class="tab-pane fade show active" id="income" role="tabpanel" aria-labelledby="income-tab">
+                                    <!--<h3>Income</h3>-->
+                                    <div class="form-group">
+                                        <label for="income-period">Select Period</label>
+                                        <select class="form-control" id="income-period" onchange="updateChart('income')">
+                                            <option value="monthly">Monthly</option>
+                                            <option value="yearly">Yearly</option>
+                                            <option value="custom">Choose Period</option>
+                                        </select>
+                                    </div>
+                                    <div id="income-custom-period" class="d-none">
+                                        <input type="date" id="income-start-date">
+                                        <input type="date" id="income-end-date">
+                                        <button class="btn btn-primary" onclick="updateChart('income')">Update</button>
+                                    </div>
+                                    <div id="income-navigation">
+                                        <button class="btn btn-secondary" onclick="changePeriod('income', 'previous')"><i class="fas fa-chevron-left"></i></button>
+                                        <span id="current-income-date"></span>
+                                        <button class="btn btn-secondary" onclick="changePeriod('income', 'next')"><i class="fas fa-chevron-right"></i></button>
+                                    </div>
+                                    <div class="chart-info">
+                                        <div class="chart-info-chart">
+                                            <canvas id="incomeChart"></canvas>
+                                        </div>
+                                        <div class="chart-info-details">
+                                            <ul id="income-details"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Expense Stats -->
+                                <div class="tab-pane fade" id="expense" role="tabpanel" aria-labelledby="expense-tab">
+                                    <!--<h3>Expense</h3>-->
+                                    <div class="form-group">
+                                        <label for="expense-period">Select Period</label>
+                                        <select class="form-control" id="expense-period" onchange="updateChart('expense')">
+                                            <option value="monthly">Monthly</option>
+                                            <option value="yearly">Yearly</option>
+                                            <option value="custom">Choose Period</option>
+                                        </select>
+                                    </div>
+                                    <div id="expense-custom-period" class="d-none">
+                                        <input type="date" id="expense-start-date">
+                                        <input type="date" id="expense-end-date">
+                                        <button class="btn btn-primary" onclick="updateChart('expense')">Update</button>
+                                    </div>
+                                    <div id="expense-navigation">
+                                        <button class="btn btn-secondary" onclick="changePeriod('expense', 'previous')"><i class="fas fa-chevron-left"></i></button>
+                                        <span id="current-expense-date"></span>
+                                        <button class="btn btn-secondary" onclick="changePeriod('expense', 'next')"><i class="fas fa-chevron-right"></i></button>
+                                    </div>
+                                    <div class="chart-info">
+                                        <div class="chart-info-chart">
+                                            <canvas id="expenseChart"></canvas>
+                                        </div>
+                                        <div class="chart-info-details">
+                                            <ul id="expense-details"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Comparison Stats -->
+                                <div class="tab-pane fade" id="comparison" role="tabpanel" aria-labelledby="comparison-tab">
+                                    <!--<h3>Comparison</h3>-->
+                                    <div class="form-group">
+                                        <label for="comparison-period">Select Period</label>
+                                        <select class="form-control" id="comparison-period" onchange="updateChart('comparison')">
+                                            <option value="monthly">Daily</option>
+                                            <option value="yearly">Monthly</option>
+                                            <option value="entirely">Yearly</option>
+                                            <option value="custom">Choose Period</option>
+                                        </select>
+                                    </div>
+                                    <div id="comparison-custom-period" class="d-none">
+                                        <input type="date" id="comparison-start-date">
+                                        <input type="date" id="comparison-end-date">
+                                        <button class="btn btn-primary" onclick="updateChart('comparison')">Update</button>
+                                    </div>
+                                    <div id="comparison-navigation">
+                                        <button class="btn btn-secondary" onclick="changePeriod('comparison', 'previous')"><i class="fas fa-chevron-left"></i></button>
+                                        <span id="current-comparison-date"></span>
+                                        <button class="btn btn-secondary" onclick="changePeriod('comparison', 'next')"><i class="fas fa-chevron-right"></i></button>
+                                    </div>
+                                    <div id="comparison-select-x-axis">
+                                        <label for="comparison-x-axis">Choose Date Range</label>
+                                        <select class="form-control" id="comparison-x-axis" onchange="updateChart('comparison')">
+                                            <option value="monthly">Daily</option>
+                                            <option value="yearly">Monthly</option>
+                                            <option value="entirely">Yearly</option>
+                                        </select>
+                                    </div>
+                                    <canvas id="comparisonChart"></canvas>
+                                    <div class="chart-info-details">
+                                        <ul id="comparison-details"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="{{ url_for('static', filename='stats.js') }}"></script>
+    </body>
+</html>

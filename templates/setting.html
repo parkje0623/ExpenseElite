@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>Expense Tracker - Budget</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='setting_style.css') }}">
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <nav class="col-md-2 bg-light sidebar">
+                    <div class="sidebar-sticky">
+                        <h5 class="sidebar-heading">Expense Tracker</h5>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="index">
+                                    <i class="fas fa-dollar-sign"></i> Expense
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="budget">
+                                    <i class="fas fa-chart-bar"></i> Budget
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="stats">
+                                    <i class="fas fa-chart-line"></i> Stats
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#">
+                                    <i class="fas fa-cog"></i> Settings
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt"></i> Log out
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+
+                <!-- Main Content -->
+                <main role="main" class="col-md-10 ml-md-auto">
+                    <div class="container">
+                        <!-- Dark Mode Toggle -->
+                        <!--<div "form-group">-->
+                        <!--    <label for="darkModeToggle">Dark Mode</label>-->
+                        <!--    <input type="checkbox" id="darkModeToggle">-->
+                        <!--</div>-->
+
+                        <!-- Update Password Form -->
+                        <div class="form-group">
+                            <h3>Update Password</h3>
+                            <form id="updatePasswordForm" onsubmit="updatePassword(event)">
+                                <div class="form-group">
+                                    <h6 id="password-condition-error" class="form-text text-danger" style="display: none;">Please Check Password Conditions Again.</h6>
+                                    <h6 id="password-confirm-error" class="form-text text-danger" style="display: none;">Current Password is not correct. Please enter a correct password.</h6>
+                                    <h6 id="password-updated" class="form-text text-success" style="display: none;">Password Updated Successfully.</h6>
+                                </div>
+                                <!--<div class="form-group">-->
+                                <!--    <label for="currentPassword">Current Password: </label>-->
+                                <!--    <input type="password" id="currentPassword" class="form-control" value="current_user.password" disabled>-->
+                                <!--</div>-->
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirm Password: </label>
+                                    <input type="password" id="confirmPassword" class="form-control" placeholder="Enter Current Password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">New Password: </label>
+                                    <input type="password" id="newPassword" class="form-control" placeholder="updatePwd123456!" required>
+                                    <small id="password-length" class="form-text text-muted">Password must be at least 8 characters long.</small>
+                                    <small id="password-lowercase" class="form-text text-muted">Password must include at least one lowercase letter.</small>
+                                    <small id="password-uppercase" class="form-text text-muted">Password must include at least one uppercase letter.</small>
+                                    <small id="password-number" class="form-text text-muted">Password must include at least one number.</small>
+                                    <small id="password-special" class="form-text text-muted">Password must include at least one of the following characters: !"#$%&'()*+,-.:;.</small>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update Password</button>
+                            </form>
+                        </div>
+
+                        <!-- Delete Account Form -->
+                        <div class="form-group">
+                            <h3>Delete Account</h3>
+                            <div class="form-group">
+                                <p class="form-text text-danger">
+                                    ***Deleting Account will permanently delete all data associated to the account.
+                                </p>
+                            </div>
+                            <div class="form-group">
+                                <button onclick="deleteAccount()" class="btn btn-danger">Delete Account</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal for Deleting Account -->
+                    <div id="passwordModal" class="modal">
+                        <div class="modal-content">
+                            <form id="deleteAccountForm" onsubmit="submitForm(event)">
+                                <span class="close" onclick="closeModal()">&times;</span>
+                                <p>Please enter your current password to confirm account deletion:</p>
+                                <input type="password" id="passwordInput" name="password" required>
+                                <button type="submit" class="btn btn-danger">Confirm</button>
+                            </form>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="{{ url_for('static', filename='setting.js') }}"></script>
+    </body>
+</html>

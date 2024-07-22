@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>Expense Tracker - Budget</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <nav class="col-md-2 bg-light sidebar">
+                    <div class="sidebar-sticky">
+                        <h5 class="sidebar-heading">Expense Tracker</h5>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="index">
+                                    <i class="fas fa-dollar-sign"></i> Expense
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#">
+                                    <i class="fas fa-chart-bar"></i> Budget
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="stats">
+                                    <i class="fas fa-chart-line"></i> Stats
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="setting">
+                                    <i class="fas fa-cog"></i> Settings
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt"></i> Log out
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+
+                <!-- Main Content -->
+                <main role="main" class="col-md-10 ml-md-auto">
+                    <div class="container budget-container">
+                        <!-- Add & Delete Button -->
+                        <div class="row">
+                            <div class="col-md-12 add-delete-btn">
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal">Add</button>
+                                <button type="button" class="btn btn-danger" onclick="openDeleteAssetModal()">Delete</button>
+                            </div>
+                        </div>
+
+                        <!-- Budget, Debt, Total -->
+                        <div class="row">
+                            <div class="income-expense-total budget-total">
+                                <div class="budget">
+                                    <h5>Budget</h5>
+                                    <p class="budget-income">${{ '%.2f'|format(budget) }}</p>
+                                </div>
+                                <div class="debt">
+                                    <h5>Debt</h5>
+                                    <p class="debt-expense">${{ '%.2f'|format(debt) }}</p>
+                                </div>
+                                <div class="total">
+                                    <h5>Total</h5>
+                                    <p class="total-total">${{ '%.2f'|format(total) }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Asset List -->
+                        <div class="row">
+                            <div class="col-md-12 asset-list" id="asset-list">
+                                {% for group_name, group_data in asset_groups.items() %}
+                                    <div class="asset-group">
+                                        <h6>
+                                            {{ group_name }}
+                                            <span class="{{ 'positive' if group_data.total > 0 else 'negative' if group_data.total < 0 else 'neutral' }}">${{ '%.2f'|format(group_data.total) }}</span>
+                                        </h6>
+                                        <div class="asset-items">
+                                            {% for asset in group_data.assets %}
+                                                <div class="asset-item">
+                                                    <h5>{{ asset.asset_name }}</h5>
+                                                    <div class="value">
+                                                        <span class="{{ 'positive' if asset.asset_amount > 0 else 'negative' if asset.asset_amount < 0 else 'neutral' }}">${{ '%.2f'|format(asset.asset_amount) }}</span>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+                <!-- Add Asset Modal -->
+                <div class="modal fade" id="addAssetModal" tabindex="-1" aria-labelledby="addAssetModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header add-header">
+                                <button id="modal-back-btn" type="button" class="btn btn-link" onclick="goBack()" style="background-color: transparent; display: none;">
+                                    <i class="fas fa-arrow-left"></i>
+                                </button>
+                                <h5 class="modal-title" id="addAssetModalLabel">Assets</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="step1">
+                                    <div class="asset-option" onclick="selectAsset('Cash')">Cash</div>
+                                    <div class="asset-option" onclick="selectAsset('Bank')">Bank</div>
+                                    <div class="asset-option" onclick="selectAsset('Debit Card')">Debit Card</div>
+                                    <div class="asset-option" onclick="selectAsset('Credit Card')">Credit Card</div>
+                                    <div class="asset-option" onclick="selectAsset('Other Card')">Other Card</div>
+                                    <div class="asset-option" onclick="selectAsset('Savings')">Savings</div>
+                                    <div class="asset-option" onclick="selectAsset('Loan')">Loan</div>
+                                    <div class="asset-option" onclick="selectAsset('Others')">Others</div>
+                                </div>
+                                <div id="step2" style="display: none;">
+                                    <form onsubmit="saveAsset(event)">
+                                        <div class="form-group">
+                                            <label for="group">Asset Group</label>
+                                            <input type="text" class="form-control" id="asset-group" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="name">Name</label>
+                                            <input type="text" class="form-control" id="asset-name" placeholder="Enter Name" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="amount">Amount</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">$ </span>
+                                                </div>
+                                                <input type="number" class="form-control" id="asset-amount" placeholder="0.00" step="0.01" required>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Asset Modal -->
+                <div class="modal fade" id="deleteAssetModal" tabindex="-1" role="dialog" aria-labelledby="deleteAssetModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header delete-header">
+                                <h5 class="modal-title" id="deleteAssetModalLabel">Delete Asset</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <ul id="assetDeleteList" class="list-group">
+                                    <!-- Asset items will be populated here by JavaScript -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    </body>
+</html>

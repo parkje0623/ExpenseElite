@@ -1,1 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>Expense Tracker</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
 
+    <body>
+        <div class="background-animation"></div>
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <nav class="col-md-2 bg-light sidebar">
+                    <div class="sidebar-sticky">
+                        <h5 class="sidebar-heading">Expense Tracker</h5>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#">
+                                    <i class="fas fa-dollar-sign"></i> Expense
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="budget">
+                                    <i class="fas fa-chart-bar"></i> Budget
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="stats">
+                                    <i class="fas fa-chart-line"></i> Stats
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="setting">
+                                    <i class="fas fa-cog"></i> Settings
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt"></i> Log out
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+
+                <!-- Main Content -->
+                <main role="main" class="col-md-10 ml-md-auto">
+                    <div class="container transaction-container">
+                        <div class="row">
+                            <div class="month-navigatgor">
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination date-navigation">
+                                        <li class="page-item">
+                                            <a class="page-link" href="?year={{ selected_year - (1 if selected_month == 1 else 0) }}&month={{ (selected_month - 1) if selected_month > 1 else 12 }}"><i class="fas fa-chevron-left"></i></a>
+                                        </li>
+                                        <li class="page-item">
+                                            <span class="index-date">{{ selected_month }}/{{ selected_year }}</span>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?year={{ selected_year + (1 if selected_month == 12 else 0) }}&month={{ (selected_month + 1) if selected_month < 12 else 1 }}"><i class="fas fa-chevron-right"></i></a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                            <div class="col-md-12 mt-3 expense-btn">
+                                <div class="expense-transaction-btn">
+                                    <button type="button" class="btn btn-primary add-transaction-button"
+                                            data-toggle="modal" data-target="#addTransactionModal"
+                                            onclick="showAllTabs()">
+                                        Add Transaction
+                                    </button>
+                                </div>
+                                <!--<div class="btn-group mb-3" role="group">-->
+                                <!--    <button type="button" class="btn btn-secondary">Daily Expense List</button>-->
+                                <!--    <button type="button" class="btn btn-secondary">Calendar View</button>-->
+                                <!--    <button type="button" class="btn btn-secondary">Monthly Expense List</button>-->
+                                <!--</div>-->
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 asset-list" id="asset-list">
+                                <!-- Overall totals for the current month -->
+                                <div class="total-row income-expense-total">
+                                    <div class="budget">
+                                        <h5>Income:</h5>
+                                        <p class="budget-income">${{ '%.2f'|format(totals.income) }}</p>
+                                    </div>
+                                    <div class="debt">
+                                        <h5>Debt:</h5>
+                                        <p class="debt-expense">${{ '%.2f'|format(totals.expense) | abs }}</p>
+                                    </div>
+                                    <div class="total">
+                                        <h5>Total:</h5>
+                                        <p class="total-total">${{ '%.2f'|format(totals.overall) }}</p>
+                                    </div>
+                                </div>
+                                <!-- LIST of INCOME OR EXPENSES OR TRANSFERS -->
+                                {% for date, transactions in transaction_groups.items() %}
+                                    <div class="date-title">
+                                        <div class="date-title-date">
+                                            {{ date.strftime('%Y-%m-%d') }}
+                                        </div>
+                                        <!-- Daily totals -->
+                                        <div class="date-title-total">
+                                            <span class="budget-income">${{ daily_totals[date]['income'] }}</span>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;
+                                            <span class="debt-expense">${{ daily_totals[date]['expense'] | abs }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="date-info">
+                                        {% for txn in transactions %}
+                                            <div class="date-info-item asset-item"
+                                                    data-transaction-id="{{ txn.id }}"
+                                                    data-id="{{ txn.id }}"
+                                                    data-type="{{ txn.type }}"
+                                                    data-date="{{ txn.date.strftime('%Y-%m-%dT%H:%M') }}"
+                                                    data-amount="{{ txn.amount }}"
+                                                    data-category="{{ txn.category_id if txn.category else '' }}"
+                                                    data-asset="{{ txn.asset_id if txn.asset else '' }}"
+                                                    data-from-asset="{{ txn.from_asset_id if txn.from_asset else '' }}"
+                                                    data-to-asset="{{ txn.to_asset_id if txn.to_asset else '' }}"
+                                                    data-note="{{ txn.description }}"
+                                                    onclick="openEditModal(this)">
+                                                <div class="date-info-item-container">
+                                                    <div class="date-info-item-category">
+                                                        {{ txn.category.name if txn.category else txn.type }}
+                                                    </div>
+                                                    <div class="date-info-item-asset">
+                                                        {% if txn.asset %}
+                                                            {{ txn.asset.asset_name }}
+                                                        {% elif txn.from_asset and txn.to_asset %}
+                                                            {{ txn.from_asset.asset_name }} -> {{ txn.to_asset.asset_name }}
+                                                        {% else %}
+                                                            N/A
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="date-info-item-amount">
+                                                        <span class="{{ 'positive' if txn.type == 'income' else 'negative' if txn.type == 'expense' else 'neutral' }}">
+                                                            ${{ txn.amount | abs }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <p>{{ txn.description if txn.description else txn.type }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+            <!-- Add/Edit Transaction Modal -->
+            <div class="modal fade" id="addTransactionModal" tabindex="-1" role="dialog" aria-labelledby="addTransactionModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header add-header">
+                            <h5 class="modal-title" id="addTransactionModalLabel">Add Transaction</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetFormFields('transactionFormContainer')">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="transactionFormContainer">
+                            <ul class="nav nav-tabs" id="transactionTypeTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="income-tab" data-toggle="tab" href="#income" role="tab" aria-controls="income" aria-selected="true">Income</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="expense-tab" data-toggle="tab" href="#expense" role="tab" aria-controls="expense" aria-selected="false">Expense</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="transfer-tab" data-toggle="tab" href="#transfer" role="tab" aria-controls="transfer" aria-selected="false">Transfer</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="transactionTypeTabContent">
+                                <!-- Income Form -->
+                                <div class="tab-pane fade show active" id="income" role="tabpanel" aria-labelledby="income-tab">
+                                    <form id="incomeForm" onsubmit="saveTransaction('income', event)">
+                                        <input type="hidden" id="transactionId" name="transactionId">
+                                        <input type="hidden" id="formMode" name="formMode" value="add">
+                                        <div class="form-group">
+                                            <label for="incomeDate">Date</label>
+                                            <input type="datetime-local" class="form-control" id="incomeDate" name="incomeDate" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="incomeAmount">Amount</label>
+                                            <input type="number" placeholder="0.00" step="0.01" class="form-control" id="incomeAmount" name="incomeAmount" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="incomeCategory">Category</label>
+                                            <select class="form-control category-select" id="incomeCategory" name="incomeCategory" required>
+                                                <!-- Categories will be loaded here -->
+                                            </select>
+                                            <button type="button" class="btn btn-sm btn-link">Edit Categories</button>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="incomeAsset">Asset</label>
+                                            <select class="form-control asset-select" id="incomeAsset" name="incomeAsset" required>
+                                                <!-- Assets will be loaded here -->
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="incomeNote">Note</label>
+                                            <textarea class="form-control" id="incomeNote" rows="3" name="incomeNote"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </form>
+                                </div>
+                                <!-- Expense Form -->
+                                <div class="tab-pane fade" id="expense" role="tabpanel" aria-labelledby="expense-tab">
+                                    <form id="expenseForm" onsubmit="saveTransaction('expense', event)">
+                                        <input type="hidden" id="transactionId" name="transactionId">
+                                        <input type="hidden" id="formMode" name="formMode" value="add">
+                                        <div class="form-group">
+                                            <label for="expenseDate">Date</label>
+                                            <input type="datetime-local" class="form-control" id="expenseDate" name="expenseDate" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="expenseAmount">Amount</label>
+                                            <input type="number" placeholder="0.00" step="0.01" class="form-control" id="expenseAmount"
+                                                name="expenseAmount" required oninput="this.value = this.value < 0 ? this.value : -Math.abs(this.value)">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="expenseCategory">Category</label>
+                                            <select class="form-control category-select" id="expenseCategory" name="expenseCategory" required>
+                                                <!-- Categories will be loaded here -->
+                                            </select>
+                                            <button type="button" class="btn btn-sm btn-link">Edit Categories</button>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="expenseAsset">Asset</label>
+                                            <select class="form-control asset-select" id="expenseAsset" name="expenseAsset" required>
+                                                <!-- Assets will be loaded here -->
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="expenseNote">Note</label>
+                                            <textarea class="form-control" id="expenseNote" rows="3" name="expenseNote"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </form>
+                                </div>
+                                <!-- Transfer Form -->
+                                <div class="tab-pane fade" id="transfer" role="tabpanel" aria-labelledby="transfer-tab">
+                                    <form id="transferForm" onsubmit="saveTransaction('transfer', event)">
+                                        <input type="hidden" id="transactionId" name="transactionId">
+                                        <input type="hidden" id="formMode" name="formMode" value="add">
+                                        <div class="form-group">
+                                            <label for="transferDate">Date</label>
+                                            <input type="datetime-local" class="form-control" id="transferDate" name="transferDate" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="transferAmount">Amount</label>
+                                            <input type="number" placeholder="0.00" step="0.01" class="form-control" id="transferAmount" name="transferAmount" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="transferFromAsset">Withdraw</label>
+                                            <select class="form-control asset-select" id="transferFromAsset" name="transferFromAsset" required>
+                                                <!-- Assets will be loaded here -->
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="transferToAsset">To</label>
+                                            <select class="form-control asset-select" id="transferToAsset" name="transferToAsset" required>
+                                                <!-- Assets will be loaded here -->
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="transferNote">Note</label>
+                                            <textarea class="form-control" id="transferNote" rows="3" name="transferNote"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </form>
+                                </div>
+                                <div>
+                                    <button id="deleteTransactionButton" style="display: none;" type="button" class="btn btn-danger" onclick="deleteTransaction(event)">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Categories Modal -->
+        <div class="modal fade" id="editCategoriesModal" tabindex="-1" role="dialog" aria-labelledby="editCategoriesModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header add-header">
+                        <h5 class="modal-title" id="editCategoriesModalLabel">Edit Categories</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetFormFields('editCategoryFormContainer')">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="editCategoryFormContainer">
+                        <form id="editCategoriesForm" onsubmit="addCategory(event)">
+                            <div class="form-group">
+                                <label for="newCategory">New Category</label>
+                                <input type="text" class="form-control" id="newCategory" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Category</button>
+                        </form>
+                        <hr>
+                        <ul id="categoriesList" class="list-group">
+                            <!-- Existing Categories Displayed HERE -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"></script>
+        <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    </body>
+</html>

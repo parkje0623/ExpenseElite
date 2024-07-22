@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>Login - Expense Tracker</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <!-- <link rel="stylesheet" href="custom.css"> -->
+    </head>
+    <body>
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        {% if message %}
+                            <div class="alert alert-{{ message_type }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endif %}
+                        <div class="card-header">
+                            <h4>Login - Expense Tracker</h4>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ url_for('login') }}" method="POST">
+                                {{ form.hidden_tag() }} <!-- This includes CSRF token -->
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password</label>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">Login</button>
+                            </form>
+                            <hr>
+                            <div class="text-center">
+                                <a href="{{ url_for('forgot_password') }}">Forgot Password?</a>
+                            </div>
+                            <div class="text-center mt-3">
+                                <span>Don't have an account? <a href="{{ url_for('register') }}">Register</a></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

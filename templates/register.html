@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>Register - Expense Tracker</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <!-- <link rel="stylesheet" href="custom.css"> -->
+
+        <script>
+            var allConditionsMet = false;
+
+            document.addEventListener("DOMContentLoaded", function() {
+                const passwordInput = document.getElementById("password");
+                const repeatPasswordInput = document.getElementById("repeat_password");
+                const passwordConditions = [
+                    document.getElementById("password-length"),
+                    document.getElementById("password-lowercase"),
+                    document.getElementById("password-uppercase"),
+                    document.getElementById("password-number"),
+                    document.getElementById("password-special"),
+                ];
+
+                const checkPasswordConditions = () => {
+                    const password = passwordInput.value;
+                    const conditionsCheck = [
+                        password.length >= 8,
+                        /[a-z]/.test(password),
+                        /[A-Z]/.test(password),
+                        /\d/.test(password),
+                        /[!@#$%^&*()+\-=[\]{};':"\\|,.<>/?]+/.test(password)
+                    ];
+
+                    for (let i = 0; i < passwordConditions.length; i++) {
+                        if (conditionsCheck[i]) {
+                            passwordConditions[i].classList.remove("text-muted");
+                            passwordConditions[i].classList.remove("text-danger");
+                            passwordConditions[i].classList.add("text-success");
+                        } else {
+                            passwordConditions[i].classList.remove("text-muted");
+                            passwordConditions[i].classList.remove("text-success");
+                            passwordConditions[i].classList.add("text-danger");
+                        }
+
+                        if (passwordInput.value === "") {
+                            passwordConditions[i].classList.add("text-muted");
+                        }
+                    }
+
+                    if (!conditionsCheck.every(condition => condition)) {
+                        allConditionsMet = false;
+                    } else {
+                        allConditionsMet = true;
+                    }
+
+                    // Check PassworMatch even when editing original password input
+                    checkPasswordMatch();
+                };
+
+                passwordInput.addEventListener("input", checkPasswordConditions);
+                repeatPasswordInput.addEventListener("input", checkPasswordMatch);
+
+                function checkPasswordMatch() {
+                    if (repeatPasswordInput.value === "") {
+                        document.getElementById("password-match").classList.add("text-muted");
+                    }
+                    else if (passwordInput.value !== repeatPasswordInput.value) {
+                        document.getElementById("password-match").classList.remove("text-muted");
+                        document.getElementById("password-match").classList.remove("text-success");
+                        document.getElementById("password-match").classList.add("text-danger");
+                    } else {
+                        document.getElementById("password-match").classList.remove("text-muted");
+                        document.getElementById("password-match").classList.remove("text-danger");
+                        document.getElementById("password-match").classList.add("text-success");
+                    }
+                }
+            });
+
+            // Validating if password and confirm password matches
+            function validatePassword() {
+                var password = document.getElementById("password").value;
+                var repeatPassword = document.getElementById("repeat_password").value;
+
+                if (!allConditionsMet) {
+                    document.getElementById("password-condition-error").style.display = "block";
+                    document.getElementById("password-match-error").style.display = "none";
+                    return allConditionsMet;
+                } else if (password !== repeatPassword) {
+                    document.getElementById("password-match-error").style.display = "block";
+                    document.getElementById("password-condition-error").style.display = "none";
+                    return false;
+                } else {
+                    document.getElementById("password-match-error").style.display = "none";
+                    document.getElementById("password-condition-error").style.display = "none";
+                    return true;
+                }
+            }
+        </script>
+    </head>
+
+    <body>
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        {% if message %}
+                            <div class="alert alert-{{ message_type }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endif %}
+                        <div class="card-header">
+                            <h4>Register - Expense Tracker</h4>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ url_for('register') }}" method="POST" onsubmit="return validatePassword()">
+                                {{ form.hidden_tag() }}
+                                <div class="form-group">
+                                    <h6 id="password-condition-error" class="form-text text-danger" style="display: none;">Please Check Password Conditions Again.</h6>
+                                    <h6 id="password-match-error" class="form-text text-danger" style="display: none;">Passwords Must Match for Registration.</h6>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email Address<span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password<span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                    <small id="password-length" class="form-text text-muted">Password must be at least 8 characters long.</small>
+                                    <small id="password-lowercase" class="form-text text-muted">Password must include at least one lowercase letter.</small>
+                                    <small id="password-uppercase" class="form-text text-muted">Password must include at least one uppercase letter.</small>
+                                    <small id="password-number" class="form-text text-muted">Password must include at least one number.</small>
+                                    <small id="password-special" class="form-text text-muted">Password must include at least one of the following characters: !"#$%&'()*+,-.:;.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="repeat_password">Repeat Password<span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="repeat_password" name="repeat_password" required>
+                                    <small id="password-match" class="form-text text-muted">Passwords must match.</small>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">Register</button>
+                            </form>
+                            <hr>
+                            <div class="text-center mt-3">
+                                <span>Already have an account? <a href="{{ url_for('login') }}">Log-in</a></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
