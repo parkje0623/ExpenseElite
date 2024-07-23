@@ -1,10 +1,7 @@
 # Expense Elite (Individual Project)
 Expense Elite is a comprehensive web application designed to assist users in tracking their income and expenses for effective financial management.
 Users can manage their financial records, view detailed statistics, and engage with an interactive user interface for a seamless experience. 
-- Current Status: [Live on PythonAnywhere](https://parkje0623.pythonanywhere.com/)
-- Use Following Account Information to View the Application:
-  - Username: expenseelite@gmail.com
-  - Password: ExpenseElite123!
+- Current Status: [Live on PythonAnywhere](https://parkje0623.pythonanywhere.com/) (Test Account Available on the Website)
  
 ## Participation
 In the development of Expense Elite, I have undertaken the following responsibilities:
@@ -26,7 +23,4 @@ The following APIs and services were used to implement the required features:
 
 ## Deployment
 The application is deployed on PythonAnywhere. To access the project:
-- Visit the live application on [PythonAnywhere](https://parkje0623.pythonanywhere.com/).
-- Use Following Account Information to View the Application:
-  - Username: expenseelite@gmail.com
-  - Password: ExpenseElite123!
+- Visit the live application on [PythonAnywhere](https://parkje0623.pythonanywhere.com/) (Test Account Available on the Website)
